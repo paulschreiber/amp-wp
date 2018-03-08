@@ -132,8 +132,8 @@ class AMP_Theme_Support {
 	public static function redirect_canonical_amp() {
 		if ( false !== get_query_var( AMP_QUERY_VAR, false ) ) { // Because is_amp_endpoint() now returns true if amp_is_canonical().
 			$url = preg_replace( '#^(https?://.+?)(/.*)$#', '$1', home_url( '/' ) );
-			if ( isset( $_SERVER['REQUEST_URI'] ) ) {
-				$url .= wp_unslash( $_SERVER['REQUEST_URI'] );
+			if ( isset( $_SERVER['REQUEST_URI'] ) ) { // input var ok
+				$url .= wp_unslash( $_SERVER['REQUEST_URI'] ); // input var ok
 			}
 
 			$url = amp_remove_endpoint( $url );
@@ -277,7 +277,7 @@ class AMP_Theme_Support {
 				continue;
 			}
 			self::$purged_amp_query_vars[ $query_var ] = wp_unslash( $_GET[ $query_var ] ); // phpcs:ignore
-			unset( $_REQUEST[ $query_var ], $_GET[ $query_var ] );
+			unset( $_REQUEST[ $query_var ], $_GET[ $query_var ] ); // phpcs:ignore
 			$scrubbed = true;
 		}
 
@@ -294,13 +294,13 @@ class AMP_Theme_Support {
 			};
 
 			// Scrub QUERY_STRING.
-			if ( ! empty( $_SERVER['QUERY_STRING'] ) ) {
-				$_SERVER['QUERY_STRING'] = $build_query( $_SERVER['QUERY_STRING'] );
+			if ( ! empty( $_SERVER['QUERY_STRING'] ) ) { // phpcs:ignore
+				$_SERVER['QUERY_STRING'] = $build_query( wp_unslash( $_SERVER['QUERY_STRING'] ) ); // phpcs:ignore
 			}
 
 			// Scrub REQUEST_URI.
-			if ( ! empty( $_SERVER['REQUEST_URI'] ) ) {
-				list( $path, $query ) = explode( '?', $_SERVER['REQUEST_URI'], 2 );
+			if ( ! empty( $_SERVER['REQUEST_URI'] ) ) { // phpcs:ignore
+				list( $path, $query ) = explode( '?', wp_unslash( $_SERVER['REQUEST_URI'] ), 2 ); // phpcs:ignore
 
 				$pairs                  = $build_query( $query );
 				$_SERVER['REQUEST_URI'] = $path;
@@ -379,7 +379,7 @@ class AMP_Theme_Support {
 			array(
 				'scheme' => 'https',
 				'host'   => wp_parse_url( home_url(), PHP_URL_HOST ),
-				'path'   => strtok( wp_unslash( $_SERVER['REQUEST_URI'] ), '?' ),
+				'path'   => strtok( wp_unslash( $_SERVER['REQUEST_URI'] ), '?' ), // input var ok
 			),
 			wp_parse_url( $location )
 		);
@@ -980,7 +980,7 @@ class AMP_Theme_Support {
 			return $response;
 		}
 
-		$is_validation_debug_mode = ! empty( $_REQUEST[ AMP_Validation_Utils::DEBUG_QUERY_VAR ] ); // WPCS: csrf ok.
+		$is_validation_debug_mode = ! empty( $_REQUEST[ AMP_Validation_Utils::DEBUG_QUERY_VAR ] ); // WPCS: csrf ok. input var ok.
 
 		$args = array_merge(
 			array(

@@ -1,8 +1,15 @@
 <?php
+/**
+ * Class AMP_YouTube_Embed_Handler
+ *
+ * @package AMP
+ */
 
-require_once( AMP__DIR__ . '/includes/embeds/class-amp-base-embed-handler.php' );
-
-// Much of this class is borrowed from Jetpack embeds
+/**
+ * Class AMP_YouTube_Embed_Handler
+ *
+ * Much of this class is borrowed from Jetpack embeds.
+ */
 class AMP_YouTube_Embed_Handler extends AMP_Base_Embed_Handler {
 	const SHORT_URL_HOST = 'youtu.be';
 	// Only handling single videos. Playlists are handled elsewhere.
@@ -92,7 +99,7 @@ class AMP_YouTube_Embed_Handler extends AMP_Base_Embed_Handler {
 
 	private function get_video_id_from_url( $url ) {
 		$video_id = false;
-		$parsed_url = parse_url( $url );
+		$parsed_url = AMP_WP_Utils::parse_url( $url );
 
 		if ( self::SHORT_URL_HOST === substr( $parsed_url['host'], -strlen( self::SHORT_URL_HOST ) ) ) {
 			// youtu.be/{id}

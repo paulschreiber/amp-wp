@@ -1,8 +1,15 @@
 <?php
+/**
+ * Class AMP_DailyMotion_Embed_Handler
+ *
+ * @package AMP
+ */
 
-require_once( AMP__DIR__ . '/includes/embeds/class-amp-base-embed-handler.php' );
-
-// Much of this class is borrowed from Jetpack embeds
+/**
+ * Class AMP_DailyMotion_Embed_Handler
+ *
+ * Much of this class is borrowed from Jetpack embeds
+ */
 class AMP_DailyMotion_Embed_Handler extends AMP_Base_Embed_Handler {
 
 	const URL_PATTERN = '#https?:\/\/(www\.)?dailymotion\.com\/video\/.*#i';
@@ -92,7 +99,7 @@ class AMP_DailyMotion_Embed_Handler extends AMP_Base_Embed_Handler {
 	}
 
 	private function get_video_id_from_url( $url ) {
-		$parsed_url = parse_url( $url );
+		$parsed_url = AMP_WP_Utils::parse_url( $url );
 		parse_str( $parsed_url['path'], $path );
 		$tok = explode( '/', $parsed_url['path'] );
 		$tok = explode( '_', $tok[2] );

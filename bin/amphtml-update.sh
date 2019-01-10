@@ -27,10 +27,13 @@ if [[ ! -e $VENDOR_PATH/amphtml ]]; then
 	git clone https://github.com/ampproject/amphtml amphtml
 else
 	cd $VENDOR_PATH/amphtml/validator
-	if [ 'master' == $( git rev-parse --abbrev-ref HEAD ) ]; then
-		git pull origin master
-	fi
+	git fetch --tags
 fi
+
+# Check out the latest tag.
+cd $VENDOR_PATH/amphtml
+LATEST_TAG=$( git describe --abbrev=0 --tags )
+git checkout $LATEST_TAG
 
 # Copy script to location and go there.
 cp $BIN_PATH/amphtml-update.py $VENDOR_PATH/amphtml/validator
@@ -38,4 +41,7 @@ cd $VENDOR_PATH/amphtml/validator
 
 # Run script.
 python amphtml-update.py
-cp amp_wp/class-amp-allowed-tags-generated.php ../../../includes/sanitizers/
+mv amp_wp/class-amp-allowed-tags-generated.php ../../../includes/sanitizers/
+rm -r amp_wp
+
+echo "Generated from tag $LATEST_TAG"

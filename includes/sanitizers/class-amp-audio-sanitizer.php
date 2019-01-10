@@ -21,39 +21,14 @@ class AMP_Audio_Sanitizer extends AMP_Base_Sanitizer {
 	public static $tag = 'audio';
 
 	/**
-	 * Script slug.
+	 * Get mapping of HTML selectors to the AMP component selectors which they may be converted into.
 	 *
-	 * @var string AMP HTML audio tag to use in place of HTML's 'audio' tag.
-	 *
-	 * @since 0.2
+	 * @return array Mapping.
 	 */
-	private static $script_slug = 'amp-audio';
-
-	/**
-	 * Script src.
-	 *
-	 * @var string URL to AMP Project's Audio element javascript file found at cdn.ampproject.org
-	 *
-	 * @since 0.2
-	 */
-	private static $script_src = 'https://cdn.ampproject.org/v0/amp-audio-0.1.js';
-
-	/**
-	 * Return one element array containing AMP HTML audio tag and respective Javascript URL
-	 *
-	 * HTML tags and Javascript URLs found at cdn.ampproject.org
-	 *
-	 * @since 0.2
-	 *
-	 * @return string[] Returns AMP HTML audio tag as array key and Javascript URL as array value,
-	 *                  respectively. Will return an empty array if sanitization has yet to be run
-	 *                  or if it did not find any HTML audio elements to convert to AMP equivalents.
-	 */
-	public function get_scripts() {
-		if ( ! $this->did_convert_elements ) {
-			return array();
-		}
-		return array( self::$script_slug => self::$script_src );
+	public function get_selector_conversion_mapping() {
+		return array(
+			'audio' => array( 'amp-audio' ),
+		);
 	}
 
 	/**
@@ -70,7 +45,9 @@ class AMP_Audio_Sanitizer extends AMP_Base_Sanitizer {
 
 		for ( $i = $num_nodes - 1; $i >= 0; $i-- ) {
 			$node           = $nodes->item( $i );
+			$amp_data       = $this->get_data_amp_attributes( $node );
 			$old_attributes = AMP_DOM_Utils::get_node_attributes_as_assoc_array( $node );
+			$old_attributes = $this->filter_data_amp_attributes( $old_attributes, $amp_data );
 
 			$new_attributes = $this->filter_attributes( $old_attributes );
 
@@ -117,8 +94,16 @@ class AMP_Audio_Sanitizer extends AMP_Base_Sanitizer {
 			 * @see: https://github.com/ampproject/amphtml/issues/2261
 			 */
 			if ( 0 === $new_node->childNodes->length && empty( $new_attributes['src'] ) ) {
-				$node->parentNode->removeChild( $node );
+				$this->remove_invalid_child( $node );
 			} else {
+
+				$layout = isset( $new_attributes['layout'] ) ? $new_attributes['layout'] : false;
+
+				// The width has to be unset / auto in case of fixed-height.
+				if ( 'fixed-height' === $layout ) {
+					$new_node->setAttribute( 'width', 'auto' );
+				}
+
 				$node->parentNode->replaceChild( $new_node, $node );
 			}
 
@@ -167,6 +152,14 @@ class AMP_Audio_Sanitizer extends AMP_Base_Sanitizer {
 					if ( 'false' !== $value ) {
 						$out[ $name ] = '';
 					}
+					break;
+
+				case 'data-amp-layout':
+					$out['layout'] = $value;
+					break;
+
+				case 'data-amp-noloading':
+					$out['noloading'] = $value;
 					break;
 
 				default:

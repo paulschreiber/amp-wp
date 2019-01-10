@@ -7,7 +7,7 @@
  *
  * @since 0.6
  */
-var ampPostMetaBox = ( function( $ ) {
+var ampPostMetaBox = ( function( $ ) { // eslint-disable-line no-unused-vars
 	'use strict';
 
 	var component = {
@@ -18,6 +18,7 @@ var ampPostMetaBox = ( function( $ ) {
 		 * @since 0.6
 		 */
 		data: {
+			canonical: false, // Overridden by amp_is_canonical().
 			previewLink: '',
 			enabled: true, // Overridden by post_supports_amp( $post ).
 			canSupport: true, // Overridden by count( AMP_Post_Type_Support::get_support_errors( $post ) ) === 0.
@@ -60,7 +61,7 @@ var ampPostMetaBox = ( function( $ ) {
 		component.data = data;
 		$( document ).ready( function() {
 			component.statusRadioInputs = $( '[name="' + component.data.statusInputName + '"]' );
-			if ( component.data.enabled ) {
+			if ( component.data.enabled && ! component.data.canonical ) {
 				component.addPreviewButton();
 			}
 			component.listen();
@@ -103,8 +104,8 @@ var ampPostMetaBox = ( function( $ ) {
 			.clone()
 			.insertAfter( previewBtn )
 			.prop( {
-				'href': component.data.previewLink,
-				'id': component.ampPreviewBtnSelector.replace( '#', '' )
+				href: component.data.previewLink,
+				id: component.ampPreviewBtnSelector.replace( '#', '' )
 			} )
 			.text( component.data.l10n.ampPreviewBtnLabel )
 			.parent()
@@ -125,9 +126,9 @@ var ampPostMetaBox = ( function( $ ) {
 		// Flag the AMP preview referer.
 		$input = $( '<input>' )
 			.prop( {
-				'type': 'hidden',
-				'name': 'amp-preview',
-				'value': 'do-preview'
+				type: 'hidden',
+				name: 'amp-preview',
+				value: 'do-preview'
 			} )
 			.insertAfter( component.ampPreviewBtnSelector );
 
@@ -160,6 +161,8 @@ var ampPostMetaBox = ( function( $ ) {
 		editAmpStatus.fadeToggle( component.toggleSpeed, function() {
 			if ( editAmpStatus.is( ':visible' ) ) {
 				editAmpStatus.focus();
+			} else {
+				$container.find( 'input[type="radio"]' ).first().focus();
 			}
 		} );
 		$container.slideToggle( component.toggleSpeed );
@@ -173,4 +176,4 @@ var ampPostMetaBox = ( function( $ ) {
 	};
 
 	return component;
-})( window.jQuery );
+}( window.jQuery ) );
